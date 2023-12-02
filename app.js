@@ -85,9 +85,9 @@ function authenticateToken(req, res, next) {
    
   });
   
-
+//any user can access this route
 app.get('/', (req, res) => {
-  res.send('Hello,Welcome to Survey API.. !');
+  res.send('Welcome to Survey API.. !');
 });
 
 app.get('/api/user/:username', authenticateToken,async (req, res) => {
@@ -128,7 +128,7 @@ app.get('/api/user/:username', authenticateToken,async (req, res) => {
 
   app.post('/register',authenticateToken, isAdmin, async (req, res) => {
     try {
-      const { uId, username, password } = req.body;
+      const {username, password } = req.body;
 
       if (!isAdmin) {
         return res.status(403).json({ error: 'Permission denied. Only admin users can register new users.' });
