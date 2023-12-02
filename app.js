@@ -7,15 +7,14 @@ const jwt = require('jsonwebtoken')
 const app = express();
 const port = 3000; 
 
-// Express middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'initme',
+    host: 'your server details here',
+    user: 'your user here',
+    password: 'your password here',
+    database: 'your DB Name',
   };
 
 function authenticateToken(req, res, next) {
@@ -37,13 +36,9 @@ function authenticateToken(req, res, next) {
     const connection = await mysql.createConnection(dbConfig);
   
     try {
-      // Execute a SELECT query to get user information based on the username
       const [rows] = await connection.execute('SELECT * FROM users WHERE username = ?', [username]);
-  
-      // Assuming the first row is the user information
       return rows.length > 0 ? rows[0] : null;
     } finally {
-      // Close the database connection
       connection.end();
     }
   };
@@ -52,31 +47,15 @@ function authenticateToken(req, res, next) {
     const connection = await mysql.createConnection(dbConfig);
   
     try {
-      // Execute a SELECT query to get user information based on the username
       const [rows] = await connection.execute('SELECT blockNo,mrcbNo FROM assignment WHERE userId = ?', [userId]);
   
-      // Assuming the first row is the user information
       return rows.length > 0 ? rows : null;
     } finally {
-      // Close the database connection
       connection.end();
     }
   };
 
-  const getF1DataByMrcb = async (mrcbNo) => {
-    const connection = await mysql.createConnection(dbConfig);
-  
-    try {
-      // Execute a SELECT query to get user information based on the username
-      const [rows] = await connection.execute('SELECT * FROM f1data WHERE mrcbNo = ?', [mrcbNo]);
-  
-      // Assuming the first row is the user information
-      return rows.length > 0 ? rows : null;
-    } finally {
-      // Close the database connection
-      connection.end();
-    }
-  };
+ 
 
 
 
@@ -145,22 +124,7 @@ app.get('/api/user/:username', authenticateToken,async (req, res) => {
     }
   });
 
-  app.get('/api/f1data/:mrcbNo',authenticateToken, async (req, res) => {
-    const mrcbNo = req.params.mrcbNo;
-  
-    try {
-      const f1Data = await getF1DataByMrcb(mrcbNo);
-  
-      if (f1Data) {
-        res.json(f1Data);
-      } else {
-        res.status(404).json({ error: 'f1Data not found' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+ 
 
   app.post('/register',authenticateToken, isAdmin, async (req, res) => {
     try {
@@ -181,10 +145,9 @@ app.get('/api/user/:username', authenticateToken,async (req, res) => {
       // Create a MySQL connection
       const connection = await mysql.createConnection(dbConfig);
   
-      // Insert the user into the database with the hashed password
       const [result] = await connection.execute(
-        'INSERT INTO users (uId, username, passwordHash, userRole) VALUES (?, ?, ?, ?)',
-        [uId, username, hashedPassword, 'user']
+        'INSERT INTO users (username, passwordHash) VALUES (?, ?)',
+        [username, hashedPassword]
       );
   
       // Close the connection
